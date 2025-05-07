@@ -1,54 +1,53 @@
-import java.util.Vector;
-
-class Product {
-    String name;
-    double price;
-    String category;
-
-    Product(String name, double price, String category) {
-        this.name = name;
-        this.price = price;
-        this.category = category;
+class LessBalanceException extends Exception {
+    public LessBalanceException(double amount) {
+        super("Withdraw amount (" + amount + " Rs) is not possible.");
     }
 }
 
-class OnlineShoppingManager {
-    private Vector<Product> inventory = new Vector<>();
+class Account {
+    double balance;
+    static final double MIN_BALANCE = 500;
 
-    public void addProduct(String name, double price, String category) {
-        Product product = new Product(name, price, category);
-        inventory.add(product);
+    public Account() {
+        balance = MIN_BALANCE;
     }
 
-    public void removeProduct(String name) {
-        for (int i = 0; i < inventory.size(); i++) {
-            if (inventory.get(i).name.equals(name)) {
-                inventory.remove(i);
-                break;
-            }
-        }
+    public void deposit(double amount) {
+        balance += amount;
+        System.out.println("Deposited " + amount + " Rs. New balance: " + balance + " Rs");
     }
 
-    public void displayProducts() {
-        for (Product product : inventory) {
-            System.out.println("Name: " + product.name + ", Price: " + product.price + ", Category: " + product.category);
+    public void withdraw(double amount) throws LessBalanceException {
+        if (balance - amount < MIN_BALANCE) {
+            throw new LessBalanceException(amount);
         }
+        balance -= amount;
+        System.out.println("Withdrawn " + amount + " Rs. New balance: " + balance + " Rs");
+    }
+
+    public double getBalance() {
+        return balance;
     }
 }
 
 public class Main {
     public static void main(String[] args) {
-        OnlineShoppingManager manager = new OnlineShoppingManager();
-        manager.addProduct("Phone", 699.99, "Electronics");
-        manager.addProduct("Backpack", 39.99, "Accessories");
-        manager.addProduct("Pen", 1.99, "Stationery");
+        Account account1 = new Account();
+        Account account2 = new Account();
 
-        System.out.println("All Products:");
-        manager.displayProducts();
+        account1.deposit(1000);
+        account2.deposit(700);
 
-        manager.removeProduct("Backpack");
+        try {
+            account1.withdraw(1600);
+        } catch (LessBalanceException e) {
+            System.out.println("LessBalanceException: " + e.getMessage());
+        }
 
-        System.out.println("After Removing 'Backpack':");
-        manager.displayProducts();
+        try {
+            account2.withdraw(200);
+        } catch (LessBalanceException e) {
+            System.out.println("LessBalanceException: " + e.getMessage());
+        }
     }
 }
